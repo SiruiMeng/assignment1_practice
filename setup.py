@@ -33,6 +33,7 @@ setup(
         'console_scripts': [
             'odometry_node = odom_localization.odometry_node:main',
             'logger_node = odom_localization.logger_node:main',
+            'encoder_sim_node = odom_localization.encoder_sim_node:main',
         ],
     },
 )

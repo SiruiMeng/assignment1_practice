@@ -1,4 +1,8 @@
-"""Start the simulation, ground-truth bridge, odometry estimator and CSV logger.
+"""Start the simulation, ground-truth bridge, encoder simulation, estimator and logger.
+
+Data flow:
+    Gazebo /joint_states -> encoder_sim_node -> /encoder/joint_states
+    -> odometry_node -> /odometry/estimate -> logger_node -> CSV
 
 Usage:
     ros2 launch odom_localization localization.launch.py
@@ -27,7 +31,7 @@ def generate_launch_description():
 
     arguments = [
         DeclareLaunchArgument(
-            'joint_topic', default_value='/joint_states',
+            'joint_topic', default_value='/encoder/joint_states',
             description='JointState topic used as the wheel-encoder input'),
         DeclareLaunchArgument(
             'wheel_radius', default_value='0.033',
@@ -52,6 +56,12 @@ def generate_launch_description():
             cmd=['bash', os.path.join(pkg_share, 'scripts', 'ground_truth.sh')],
             output='screen')])
 
+    # Turns the ideal joint angles from Gazebo into simulated encoder readings.
+    encoder = Node(
+        package='odom_localization',
+        executable='encoder_sim_node',
+        output='screen')
+
     odometry = Node(
         package='odom_localization',
         executable='odometry_node',
@@ -71,4 +81,4 @@ def generate_launch_description():
         parameters=[{'output_file_1': LaunchConfiguration('output_file')}])
 
     return LaunchDescription(
-        arguments + [simulation, ground_truth, odometry, logger])
+        arguments + [simulation, ground_truth, encoder, odometry, logger])
