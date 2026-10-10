@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'odometry_node = odom_localization.odometry_node:main',
+            'logger_node = odom_localization.logger_node:main',
         ],
     },
 )
