@@ -14,13 +14,13 @@ from rclpy.node import Node
 class DriveRouteNode(Node):
     def __init__(self):
         super().__init__('drive_route_node')
-        side = self.declare_parameter('side', 1.0).value             # 边长 [m]
+        side = self.declare_parameter('side', 1.0).value             # side length [m]
         v = self.declare_parameter('linear_speed', 0.1).value         # [m/s]
         w = self.declare_parameter('angular_speed', 0.3).value        # [rad/s]
         laps = self.declare_parameter('laps', 1).value
-        self.start_delay = self.declare_parameter('start_delay', 5.0).value  # 等仿真和其他节点就绪 [s]
+        self.start_delay = self.declare_parameter('start_delay', 5.0).value  # settle time [s]
 
-        # 路线 = (线速度, 角速度, 持续时间) 的列表；每段之间停 1 秒，让车完全停下
+        # Route = list of (linear speed, angular speed, duration); 1 s pauses let the robot stop
         pause = (0.0, 0.0, 1.0)
         straight = (v, 0.0, side / v)
         turn = (0.0, w, (math.pi / 2) / w)
@@ -45,7 +45,7 @@ class DriveRouteNode(Node):
 
     def tick(self):
         t = self.now()
-        if t == 0.0:            # /clock 还没开始
+        if t == 0.0:            # /clock has not started yet
             return
         if self.t0 is None:
             self.t0 = t
@@ -55,7 +55,7 @@ class DriveRouteNode(Node):
         if self.segment_start is None:
             self.segment_start = t
 
-        # 当前段时间到了就切到下一段
+        # Advance to the next segment when the current one has elapsed
         while self.index < len(self.segments) and t - self.segment_start >= self.segments[self.index][2]:
             self.segment_start += self.segments[self.index][2]
             self.index += 1

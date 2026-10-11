@@ -10,7 +10,7 @@ class OdometryNode(Node):
     def __init__(self):
         super().__init__('odometry_node')
 
-        # 参数：可以在运行时用 --ros-args -p name:=value 修改
+        # Parameters can be overridden at runtime with --ros-args -p name:=value
         self.wheel_radius = self.declare_parameter('wheel_radius', 0.033).value
         self.wheel_separation = self.declare_parameter('wheel_separation', 0.160).value
         self.left_joint = self.declare_parameter('left_joint', 'wheel_left_joint').value
@@ -37,7 +37,7 @@ class OdometryNode(Node):
                 throttle_duration_sec=5.0)
             return
 
-        # 第一帧没有 previous position，只保存，不计算
+        # The first message has no previous position: store it, do not integrate
         if self.prev_left_pos is not None and self.prev_right_pos is not None:
 
             # wheel angle increment [rad]

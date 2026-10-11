@@ -3,9 +3,9 @@
 <package format="3">
   <name>odom_localization</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Wheel-odometry localization of a TurtleBot3 in Gazebo with simulated encoder noise, evaluated against ground truth.</description>
   <maintainer email="sxm2337@student.bham.ac.uk">siruimeng</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>

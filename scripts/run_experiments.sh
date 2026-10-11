@@ -23,7 +23,7 @@ EXPERIMENTS=(
 for exp in "${EXPERIMENTS[@]}"; do
   name=${exp%%|*}
   args=${exp#*|}
-  # 已经有数据的实验跳过（删掉对应 CSV 就会重跑）
+  # Skip experiments that already have data (delete the CSV to rerun)
   if [ -f "$OUT_DIR/$name.csv" ] && [ "$(wc -l < "$OUT_DIR/$name.csv")" -gt 100 ]; then
     echo "=== $name: already done, skipping"
     continue
@@ -32,17 +32,17 @@ for exp in "${EXPERIMENTS[@]}"; do
   ros2 launch odom_localization localization.launch.py $args \
     output_file:="$OUT_DIR/$name.csv" > "$OUT_DIR/$name.log" 2>&1 &
   launch_pid=$!
-  sleep 15   # 等仿真启动、真值脚本运行（launch 里延迟 10 秒）
-  # 超时保护：机器人没生成等异常情况下不会一直卡住
+  sleep 15   # wait for Gazebo and the ground-truth script (started after 10 s)
+  # Timeout so a failed spawn cannot hang the whole batch
   timeout 300 ros2 run odom_localization drive_route_node --ros-args -p use_sim_time:=true
-  sleep 3    # 让 logger 把车停下后的几行也记下来
-  # 脚本里的后台进程会忽略 SIGINT，所以用 SIGTERM；15 秒内没退出就强制结束
+  sleep 3    # log a few rows after the robot has stopped
+  # Background jobs in scripts ignore SIGINT, so use SIGTERM; force-kill after 15 s
   kill -TERM "$launch_pid" 2>/dev/null
   for _ in $(seq 15); do kill -0 "$launch_pid" 2>/dev/null || break; sleep 1; done
   kill -KILL "$launch_pid" 2>/dev/null
-  # 真值 bridge 和 Gazebo 有时不会跟着 launch 一起退出，单独清理
+  # The ground-truth bridge and Gazebo do not always exit with the launch
   pkill -f "[p]arameter_bridge /ground_truth" 2>/dev/null
-  pkill -9 -f "[g]z sim" 2>/dev/null   # Gazebo 会忽略普通的结束信号，必须 -9
+  pkill -9 -f "[g]z sim" 2>/dev/null   # Gazebo ignores SIGTERM
   pkill -f "[p]arameter_bridge --ros-args -p config_file" 2>/dev/null
   pkill -f "[e]ncoder_sim_node|[o]dometry_node|[l]ogger_node|[r]obot_state_publisher" 2>/dev/null
   sleep 3

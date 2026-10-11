@@ -6,7 +6,7 @@ import math
 
 
 def quaternion_to_yaw(q):
-    # 平面运动只需要 yaw（绕 z 轴的转角）
+    # Planar motion only needs yaw (rotation about z)
     siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
     cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
     return math.atan2(siny_cosp, cosy_cosp)
@@ -28,7 +28,7 @@ class LoggerNode(Node):
         self.get_logger().info(f'Logging to {output_file_1}')
 
     def ground_truth_callback(self, msg):
-        # 还没收到估计值时不记录
+        # Skip until the first estimate has arrived
         if self.latest_msg is None:
             return
         stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9

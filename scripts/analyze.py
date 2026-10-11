@@ -66,7 +66,7 @@ def main():
         print(f'{name:20s} {m["pos_rmse"]:11.3f} {m["pos_final"]:9.3f} {m["yaw_rmse"]:13.2f} '
               f'{m["yaw_final"]:10.2f} {m["path_len"]:8.2f} {m["drift_pct"]:8.2f}')
 
-    # 轨迹图：真值只画第一组（同一条路线）
+    # Trajectory plot: ground truth drawn once (all runs share the same route)
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.plot(runs[0][1]['gt_x'], runs[0][1]['gt_y'], 'k-', lw=2.5, label='Ground truth')
     for name, d, _ in runs:
