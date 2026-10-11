@@ -7,6 +7,8 @@ Data flow:
 Usage:
     ros2 launch odom_localization localization.launch.py
     ros2 launch odom_localization localization.launch.py output_file:=baseline.csv
+    ros2 launch odom_localization localization.launch.py noise_k:=0.05
+    ros2 launch odom_localization localization.launch.py ticks_per_rev:=360
 """
 import os
 
@@ -34,6 +36,12 @@ def generate_launch_description():
             'joint_topic', default_value='/encoder/joint_states',
             description='JointState topic used as the wheel-encoder input'),
         DeclareLaunchArgument(
+            'noise_k', default_value='0.0',
+            description='Encoder random-noise gain: sigma = noise_k * sqrt(|dphi|)'),
+        DeclareLaunchArgument(
+            'ticks_per_rev', default_value='0',
+            description='Encoder resolution in ticks per revolution (0 = no quantization)'),
+        DeclareLaunchArgument(
             'wheel_radius', default_value='0.033',
             description='Wheel radius assumed by the estimator [m]'),
         DeclareLaunchArgument(
@@ -60,7 +68,13 @@ def generate_launch_description():
     encoder = Node(
         package='odom_localization',
         executable='encoder_sim_node',
-        output='screen')
+        output='screen',
+        parameters=[{
+            'noise_k': ParameterValue(
+                LaunchConfiguration('noise_k'), value_type=float),
+            'ticks_per_rev': ParameterValue(
+                LaunchConfiguration('ticks_per_rev'), value_type=int),
+        }])
 
     odometry = Node(
         package='odom_localization',
