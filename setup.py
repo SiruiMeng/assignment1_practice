@@ -22,7 +22,8 @@ setup(
     zip_safe=True,
     maintainer='siruimeng',
     maintainer_email='sxm2337@student.bham.ac.uk',
-    description='Wheel-odometry localization of a TurtleBot3 in Gazebo with simulated encoder noise, evaluated against ground truth.',
+    description='Wheel-odometry localization of a TurtleBot3 in Gazebo with simulated '
+                'encoder noise, evaluated against ground truth.',
     license='Apache-2.0',
     extras_require={
         'test': [

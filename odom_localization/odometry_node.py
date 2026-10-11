@@ -1,9 +1,15 @@
+"""Estimate the robot pose by dead reckoning from wheel-encoder readings only.
+
+Subscribes to the encoder JointState topic and publishes the estimated pose on
+/odometry/estimate. It never reads /odom, /tf or the simulator ground truth.
+"""
+import math
+
+from nav_msgs.msg import Odometry
+from odom_localization.odometry_math import update_pose, wheel_to_body
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from nav_msgs.msg import Odometry
-import math
-from odom_localization.odometry_math import wheel_to_body, update_pose
 
 
 class OdometryNode(Node):
@@ -25,9 +31,9 @@ class OdometryNode(Node):
         self.prev_right_pos = None
 
         self.odom_pub = self.create_publisher(Odometry, '/odometry/estimate', 10)
-        self.create_subscription(JointState, joint_topic, self.JointState_callback, 10)
+        self.create_subscription(JointState, joint_topic, self.joint_state_callback, 10)
 
-    def JointState_callback(self, msg):
+    def joint_state_callback(self, msg):
         try:
             left_pos = msg.position[msg.name.index(self.left_joint)]
             right_pos = msg.position[msg.name.index(self.right_joint)]

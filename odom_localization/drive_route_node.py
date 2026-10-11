@@ -56,7 +56,8 @@ class DriveRouteNode(Node):
             self.segment_start = t
 
         # Advance to the next segment when the current one has elapsed
-        while self.index < len(self.segments) and t - self.segment_start >= self.segments[self.index][2]:
+        while (self.index < len(self.segments)
+               and t - self.segment_start >= self.segments[self.index][2]):
             self.segment_start += self.segments[self.index][2]
             self.index += 1
 

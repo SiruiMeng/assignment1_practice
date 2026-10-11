@@ -1,8 +1,14 @@
-import rclpy
-from rclpy.node import Node
-from nav_msgs.msg import Odometry
+"""Log the estimated pose next to the ground-truth pose in a CSV file.
+
+One row is written for every ground-truth message, paired with the latest estimate.
+Ground truth is used here for evaluation only.
+"""
 import csv
 import math
+
+from nav_msgs.msg import Odometry
+import rclpy
+from rclpy.node import Node
 
 
 def quaternion_to_yaw(q):
@@ -19,7 +25,8 @@ class LoggerNode(Node):
         self.create_subscription(Odometry, '/ground_truth/odom', self.ground_truth_callback, 10)
         self.latest_msg = None
 
-        output_file_1 = self.declare_parameter('output_file_1', 'data.csv').get_parameter_value().string_value
+        output_file_1 = self.declare_parameter(
+            'output_file_1', 'data.csv').get_parameter_value().string_value
         self.file = open(output_file_1, 'w', newline='', buffering=1)
         self.writer = csv.writer(self.file)
         self.writer.writerow(['stamp',
